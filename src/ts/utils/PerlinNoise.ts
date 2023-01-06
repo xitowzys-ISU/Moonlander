@@ -1,5 +1,5 @@
 export default class PerlinNoise {
-  private p: Array<number> = [];
+  readonly p: Array<number> = [];
 
   private permutation: Array<number> = [151, 160, 137, 91, 90, 15,
     131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
@@ -42,8 +42,6 @@ export default class PerlinNoise {
     let BA = this.p[B] + zBitwised;
     let BB = this.p[B + 1] + zBitwised;
 
-    console.log(this.grad(this.p[AA], xx, yy, zz));
-
     let a = this.lerp(v,
       this.lerp(u, this.grad(this.p[AA], xx, yy, zz), this.grad(this.p[BA], xx - 1, yy, zz)),
       this.lerp(u, this.grad(this.p[AB], xx, yy - 1, zz), this.grad(this.p[BB], xx - 1, yy - 1, zz))
@@ -65,7 +63,7 @@ export default class PerlinNoise {
     let h = hash & 15;
     let u = (h < 8) ? x : y;
     let v = (h < 4) ? y : (h == 12 || h == 14) ? x : z;
-    console.log(u);
+
     return (((h & 1) == 0) ? u : -u) + (((h & 2) == 0) ? v : -v);
   }
 
