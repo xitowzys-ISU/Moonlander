@@ -55,6 +55,4 @@ export default class Vector {
       this.div(m);
     }
   }
-
-
 }

@@ -1,6 +1,6 @@
 import { IAnimFunction, IAnimParams } from "../utils/animation";
 
-export default class GameActive implements IAnimFunction {
+export default class GameActiveScreen implements IAnimFunction {
   clear(): void {
   }
 

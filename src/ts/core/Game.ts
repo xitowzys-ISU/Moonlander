@@ -1,24 +1,58 @@
 import Terrain from "./Terrain";
 import Spaceship from "./Spaceship";
-import Vector from "./utils/Vector";
-import { IAnimFunction, IAnimParams } from "./utils/animation";
+import Vector from "../utils/Vector";
+import { IAnimFunction, IAnimParams } from "../utils/animation";
+import { GameState } from "../enums/GameState";
+import GetReadyScreen from "../screens/GetReadyScreen";
+import GameActiveScreen from "../screens/GameActiveScreen";
+
 
 export default class Game implements IAnimFunction {
 
+  private screens = {
+    getReady: new GetReadyScreen(),
+    gameActive: new GameActiveScreen(),
+  }
   private spaceship: Spaceship;
   private terrain: Terrain;
 
-  private animPamars: IAnimParams | undefined
+  private gameState: GameState;
+
+  private animPamars: IAnimParams | undefined;
 
   constructor() {
     this.spaceship = new Spaceship(new Vector(window.innerWidth / 2, 200));
     this.terrain = new Terrain();
+    this.gameState = GameState.GET_READY
     this.init();
 
   }
 
   init() {
     this.terrain.generate();
+
+    let thisClass = this;
+
+    document.addEventListener('keydown', function eventHandler(e) {
+
+      if (e.code == "Space") {
+        thisClass.gameActive()
+        this.removeEventListener('keydown', eventHandler);
+      }
+
+    });
+
+
+    document.addEventListener("keyup", (e) => {
+
+
+    });
+
+  }
+
+  gameActive() {
+
+    this.gameState = GameState.GAME_ACTIVE
 
     document.addEventListener("keydown", (e) => {
 
@@ -28,6 +62,7 @@ export default class Game implements IAnimFunction {
 
       if (this.animPamars !== undefined) {
         if (e.code == "KeyW") {
+          this.spaceship.gasAnimationEnable();
           this.spaceship.gas(this.animPamars);
         }
 
@@ -56,13 +91,17 @@ export default class Game implements IAnimFunction {
       }
 
     });
-
   }
 
   clear(): void {
   }
 
   draw(params: IAnimParams): void {
+
+    if (this.gameState === GameState.GET_READY) {
+      this.screens.getReady.draw(params)
+    }
+
     this.spaceship.draw(params);
     this.terrain.draw(params);
     // console.log("update");
@@ -70,11 +109,15 @@ export default class Game implements IAnimFunction {
 
   update(params: IAnimParams): void {
 
-    this.animPamars = params
+    if (this.gameState === GameState.GAME_ACTIVE) {
 
-    this.spaceship.applyForce(new Vector(0, 0.1 * this.animPamars.secondPart));
+      this.animPamars = params;
 
-    this.spaceship.update(params);
+      this.spaceship.applyForce(new Vector(0, 0.1 * this.animPamars.secondPart));
+
+      this.spaceship.update(params);
+    }
+
     // console.log("update");
   }
 

@@ -1,25 +1,15 @@
-import { animation, IAnimParams } from "./utils/animation";
-import Vector from "./utils/Vector";
-import Canvas from "./Canvas";
 import "../css/styles.css";
-import Game from "./Game";
-import PerlinNoise from "./utils/PerlinNoise";
 
-// let vectors: Vector = new Vector(1, 1);
-// vectors.mul(10)
-// console.log(vectors.toString());
-
-// let perlin = new PerlinNoise()
-// console.log(perlin.perlinNoise(3.14, 42, 7));
+import Game from "./core/Game";
+import Canvas from "./core/Canvas";
+import { animation, IAnimParams } from "./utils/animation";
 
 let canvas: Canvas;
-
 let game: Game;
 
 let initApp = new Promise<void>((resolve, reject) => {
   canvas = Canvas.Instance;
   game = new Game();
-
 
   resolve();
 });

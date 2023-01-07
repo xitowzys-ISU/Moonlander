@@ -31,8 +31,6 @@ export function animation(obj: IAnimFunction): void {
     const fps: number = 1000 / diff;
     const secondPart: number = diff / 1000;
 
-    let now = Date.now();
-
     const params: IAnimParams = {
       timestamp,
       pTimestamp,
@@ -40,7 +38,6 @@ export function animation(obj: IAnimFunction): void {
       fps,
       secondPart
     };
-
 
     update(params);
     clear();

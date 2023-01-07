@@ -1,9 +1,12 @@
 import Canvas from "./Canvas";
-import Vector from "./utils/Vector";
-import { IAnimFunction, IAnimParams } from "./utils/animation";
-import { randomBetweenInteger } from "./utils/randomBetween";
+import Vector from "../utils/Vector";
+import { IAnimFunction, IAnimParams } from "../utils/animation";
+import { randomBetweenInteger } from "../utils/randomBetween";
 
 export default class Spaceship implements IAnimFunction {
+  get fuel(): number {
+    return this._fuel;
+  }
 
   private canvas: Canvas = Canvas.Instance;
 
@@ -11,10 +14,12 @@ export default class Spaceship implements IAnimFunction {
   private velocity: Vector;
   private acceleration: Vector;
   private destroyed: boolean;
-  private fuel: number = 1000;
+  private _fuel: number = 1000;
 
   private gasActivate: boolean = false;
   private angle: number = 0;
+
+  private landingPlatformsCoord: Array<Array<Vector>> = [];
 
   constructor(position: Vector) {
     this.position = position;
@@ -22,6 +27,17 @@ export default class Spaceship implements IAnimFunction {
 
     this.velocity = new Vector(0, 0);
     this.acceleration = new Vector(0, 0);
+
+    this.landingPlatformsCoord[0] = [
+      new Vector(this.position.x + 6, this.position.y + 15),
+      new Vector(this.position.x + 14, this.position.y + 15)
+    ];
+
+    this.landingPlatformsCoord[1] = [
+      new Vector(this.position.x - 6, this.position.y + 15),
+      new Vector(this.position.x - 14, this.position.y + 15)
+    ];
+
   }
 
   clear(): void {
@@ -65,7 +81,7 @@ export default class Spaceship implements IAnimFunction {
       this.canvas.ctx.strokeStyle = "#04ecff";
       this.canvas.ctx.fillStyle = "#04ecff";
       this.canvas.ctx.moveTo(-4, 6);
-      this.canvas.ctx.lineTo(0, randomBetweenInteger(10, 15));
+      this.canvas.ctx.lineTo(0, randomBetweenInteger(15, 20));
       this.canvas.ctx.lineTo(4, 6);
 
       this.canvas.ctx.fill();
@@ -93,9 +109,8 @@ export default class Spaceship implements IAnimFunction {
 
 
   gas(params: IAnimParams) {
-    this.gasActivate = true;
     this.applyForce(new Vector(Math.sin(this.degToRad(this.angle)) * params.secondPart, Math.cos(this.degToRad(this.angle)) * -2 * params.secondPart));
-    this.fuel -= 1;
+    this._fuel -= 1;
   }
 
   gasAnimationEnable() {
