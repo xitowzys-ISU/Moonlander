@@ -5,16 +5,19 @@ import { IAnimFunction, IAnimParams } from "../utils/animation";
 import { GameState } from "../enums/GameState";
 import GetReadyScreen from "../screens/GetReadyScreen";
 import GameActiveScreen from "../screens/GameActiveScreen";
+import Collision from "./Collision";
 
 
 export default class Game implements IAnimFunction {
 
   private screens = {
     getReady: new GetReadyScreen(),
-    gameActive: new GameActiveScreen(),
-  }
+    gameActive: new GameActiveScreen()
+  };
   private spaceship: Spaceship;
   private terrain: Terrain;
+
+  private collision: Collision;
 
   private gameState: GameState;
 
@@ -23,7 +26,10 @@ export default class Game implements IAnimFunction {
   constructor() {
     this.spaceship = new Spaceship(new Vector(window.innerWidth / 2, 200));
     this.terrain = new Terrain();
-    this.gameState = GameState.GET_READY
+    this.gameState = GameState.GET_READY;
+
+    this.collision = new Collision(this.spaceship, this.terrain);
+
     this.init();
 
   }
@@ -33,32 +39,21 @@ export default class Game implements IAnimFunction {
 
     let thisClass = this;
 
-    document.addEventListener('keydown', function eventHandler(e) {
-
+    document.addEventListener("keydown", function eventHandler(e) {
       if (e.code == "Space") {
-        thisClass.gameActive()
-        this.removeEventListener('keydown', eventHandler);
+        thisClass.gameActive();
+        this.removeEventListener("keydown", eventHandler);
       }
-
     });
-
-
-    document.addEventListener("keyup", (e) => {
-
-
-    });
-
   }
 
   gameActive() {
 
-    this.gameState = GameState.GAME_ACTIVE
+    this.gameState = GameState.GAME_ACTIVE;
 
     document.addEventListener("keydown", (e) => {
 
       // e.preventDefault();
-
-      // console.log(e);
 
       if (this.animPamars !== undefined) {
         if (e.code == "KeyW") {
@@ -77,12 +72,14 @@ export default class Game implements IAnimFunction {
 
     });
 
+    document.addEventListener("mousedown", (event) => {
+      this.spaceship.position = new Vector(event.x, event.y);
+    });
+
 
     document.addEventListener("keyup", (e) => {
 
       // e.preventDefault();
-
-      // console.log(e);
 
       if (this.animPamars !== undefined) {
         if (e.code == "KeyW") {
@@ -99,26 +96,34 @@ export default class Game implements IAnimFunction {
   draw(params: IAnimParams): void {
 
     if (this.gameState === GameState.GET_READY) {
-      this.screens.getReady.draw(params)
+      this.screens.getReady.draw(params);
     }
 
     this.spaceship.draw(params);
     this.terrain.draw(params);
-    // console.log("update");
   }
 
   update(params: IAnimParams): void {
 
     if (this.gameState === GameState.GAME_ACTIVE) {
-
       this.animPamars = params;
-
       this.spaceship.applyForce(new Vector(0, 0.1 * this.animPamars.secondPart));
-
       this.spaceship.update(params);
-    }
 
-    // console.log("update");
+      let id = this.collision.checkCollision();
+
+      if (id !== -1) {
+        if (this.collision.checkFail(id)) {
+          console.error("DETECT");
+          this.spaceship.velocity = new Vector(0, 0);
+          this.gameState = GameState.GAME_OVER;
+        } else {
+          console.error("WIN");
+          this.spaceship.velocity = new Vector(0, 0);
+          this.gameState = GameState.VICTORY;
+        }
+      }
+    }
   }
 
 }
