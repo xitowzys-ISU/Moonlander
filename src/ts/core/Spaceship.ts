@@ -29,7 +29,7 @@ export default class Spaceship implements IAnimFunction {
   private _velocity: Vector;
   private acceleration: Vector;
   private destroyed: boolean;
-  private _fuel: number = 1000;
+  private _fuel: number = 100;
 
   private gasActivate: boolean = false;
   private _angle: number = 0;
@@ -131,8 +131,10 @@ export default class Spaceship implements IAnimFunction {
 
 
   gas(params: IAnimParams) {
-    this.applyForce(new Vector(Math.sin(this.degToRad(this._angle)) * params.secondPart, Math.cos(this.degToRad(this._angle)) * -2 * params.secondPart));
-    this._fuel -= 1;
+    if(this._fuel > 0) {
+      this.applyForce(new Vector(Math.sin(this.degToRad(this._angle)) * params.secondPart, Math.cos(this.degToRad(this._angle)) * -2 * params.secondPart));
+      this._fuel -= 1;
+    }
   }
 
   gasAnimationEnable() {

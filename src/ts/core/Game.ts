@@ -6,13 +6,17 @@ import { GameState } from "../enums/GameState";
 import GetReadyScreen from "../screens/GetReadyScreen";
 import GameActiveScreen from "../screens/GameActiveScreen";
 import Collision from "./Collision";
+import VictoryScreen from "../screens/VictoryScreen";
+import GameOverScreen from "../screens/GameOverScreen";
 
 
 export default class Game implements IAnimFunction {
 
   private screens = {
     getReady: new GetReadyScreen(),
-    gameActive: new GameActiveScreen()
+    gameActive: new GameActiveScreen(),
+    victory: new VictoryScreen(),
+    gameOver: new GameOverScreen()
   };
   private spaceship: Spaceship;
   private terrain: Terrain;
@@ -43,6 +47,15 @@ export default class Game implements IAnimFunction {
       if (e.code == "Space") {
         thisClass.gameActive();
         this.removeEventListener("keydown", eventHandler);
+      }
+    });
+  }
+
+  gameOver() {
+    document.addEventListener("keydown", function eventHandler(e) {
+      if (e.code == "Space") {
+        this.removeEventListener("keydown", eventHandler);
+        location.reload();
       }
     });
   }
@@ -99,6 +112,18 @@ export default class Game implements IAnimFunction {
       this.screens.getReady.draw(params);
     }
 
+    if (this.gameState === GameState.VICTORY) {
+      this.screens.victory.draw(params);
+    }
+
+    if (this.gameState === GameState.GAME_OVER) {
+      this.screens.gameOver.draw(params);
+    }
+
+    if (this.gameState === GameState.GAME_ACTIVE) {
+      this.screens.gameActive.drawStats(params, this.spaceship);
+    }
+
     this.spaceship.draw(params);
     this.terrain.draw(params);
   }
@@ -106,6 +131,8 @@ export default class Game implements IAnimFunction {
   update(params: IAnimParams): void {
 
     if (this.gameState === GameState.GAME_ACTIVE) {
+
+
       this.animPamars = params;
       this.spaceship.applyForce(new Vector(0, 0.1 * this.animPamars.secondPart));
       this.spaceship.update(params);
@@ -117,13 +144,16 @@ export default class Game implements IAnimFunction {
           console.error("DETECT");
           this.spaceship.velocity = new Vector(0, 0);
           this.gameState = GameState.GAME_OVER;
+          this.gameOver();
         } else {
           console.error("WIN");
           this.spaceship.velocity = new Vector(0, 0);
           this.gameState = GameState.VICTORY;
+          this.gameOver();
         }
       }
     }
+
   }
 
 }
